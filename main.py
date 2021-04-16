@@ -57,7 +57,8 @@ framenum = 1
 perc = 0
 height, width, channels = frame.shape
 print(frame.shape)
-ptsstring = "[(-330,0),(0,{}),({},{}),({},0)]".format(720,1280,720,1610)
+ptsstring = "[(-710,0),(0,{}),({},{}),({},0)]".format(720,1280,720,2000)
+ptsstring = "[(0,0),(0,{}),({},{}),({},0)]".format(720,1280,720,1280)
 pts = np.array(eval(ptsstring), dtype="float32")
 while(1):
     #print(ret, frame)
@@ -66,6 +67,8 @@ while(1):
     if str(type(frame)) == "<class 'NoneType'>":
         break
     output = frame.copy()
+    ptsstring = "[(0,0),(0,{}),({},{}),({},0)]".format(720-(framenum-320)*6/5, 1280, 720, 1280)
+    pts = np.array(eval(ptsstring), dtype="float32")
     output2 = four_point_transform(output, pts, False)
     blur = cv2.GaussianBlur(frame, (5, 5), 0)
     #nframe = cv2.convertScaleAbs(blur, alpha=2.0, beta=10)

@@ -67,7 +67,7 @@ while(1):
     if str(type(frame)) == "<class 'NoneType'>":
         break
     output = frame.copy()
-    ptsstring = "[(0,0),(0,{}),({},{}),({},0)]".format(720-(framenum-320)*6/5, 1280, 720, 1280)
+    ptsstring = "[(0,0),(0,{}),({},{}),({},0)]".format(720-((framenum/45)*(framenum-165)), 1280, 720, 1280)
     pts = np.array(eval(ptsstring), dtype="float32")
     output2 = four_point_transform(output, pts, False)
     blur = cv2.GaussianBlur(frame, (5, 5), 0)
@@ -119,4 +119,4 @@ while(1):
     #print(output.shape)
     #print(gray.shape)
     #cv2.imshow('frame',np.hstack([frame, output, gray]))
-print(str(round(perc/framenum*100))+"%")
+print(str(round(perc/(framenum-108)*100))+"%")

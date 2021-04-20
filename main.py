@@ -67,8 +67,18 @@ while(1):
     if str(type(frame)) == "<class 'NoneType'>":
         break
     output = frame.copy()
-    #ptsstring = "[(0,0),(0,{}),({},{}),({},0)]".format(720-((framenum/48)*(framenum-165)), 1280, 720, 1280)
-    ptsstring = "[(0,0),(0,{}),({},{}),({},0)]".format(720 - (((framenum-75)**2 * (framenum-130)**2)/150000), 1280, 720, 1280)
+    # ptsstring = "[(0,0),(0,{}),({},{}),({},0)]".format(720-((framenum/48)*(framenum-165)), 1280, 720, 1280)
+    if not (framenum>=98 and framenum<=113):
+        if framenum<98:
+            ptsstring = "[(0,0),(0,{}),({},{}),({},0)]".format(
+                600 - (((framenum-98)**4) /500000),
+                1280, 720, 1280)
+        else:
+            #ptsstring = "[(0,0),(0,{}),({},{}),({},0)]".format(720 - (((framenum - 98) ** 2 * (framenum - 113) ** 2) / 500 / framenum+10),
+                                                        #1280, 720, 1280)
+            ptsstring = "[(0,0),(0,{}),({},{}),({},0)]".format(720, 1280, 720, 1280)
+    else:
+        ptsstring = "[(0,0),(0,{}),({},{}),({},0)]".format(720, 1280, 720, 1280)
     pts = np.array(eval(ptsstring), dtype="float32")
     output2 = four_point_transform(output, pts, False)
     blur = cv2.GaussianBlur(frame, (5, 5), 0)
@@ -95,7 +105,7 @@ while(1):
                 maxy = y
                 maxr = r
         #cv2.circle(output, (maxx, maxy), maxr, (0, 165, 255), 4)
-        cv2.circle(output2, (maxx, maxy), maxr, (random.randrange(0,255), random.randrange(0,255), random.randrange(0,255)), 4)
+        cv2.circle(output2, (maxx, maxy), maxr, (random.randrange(254,255), random.randrange(254,255), random.randrange(254,255)), 4)
         cv2.rectangle(output2, (maxx - 5, maxy - 5), (maxx + 5, maxy + 5), (0, 0, 0), -1)
 
     output3 = four_point_transform(output2, pts, True)

@@ -51,7 +51,7 @@ def four_point_transform(image, pts, inve):
     return warped
 
 
-cap = cv2.VideoCapture("IMG_0202.MOV")
+cap = cv2.VideoCapture("IMG_0202.mov")
 ret, frame = cap.read()
 framenum = 1
 perc = 0
@@ -60,6 +60,10 @@ print(frame.shape)
 ptsstring = "[(-710,0),(0,{}),({},{}),({},0)]".format(720,1280,720,2000)
 ptsstring = "[(0,0),(0,{}),({},{}),({},0)]".format(720,1280,720,1280)
 pts = np.array(eval(ptsstring), dtype="float32")
+prev = False
+prevx = 0
+prevy = 0
+prevr = 0
 while(1):
     #print(ret, frame)
     ret, frame = cap.read()
@@ -71,12 +75,15 @@ while(1):
     if not (framenum>=98 and framenum<=113):
         if framenum<98:
             ptsstring = "[(0,0),(0,{}),({},{}),({},0)]".format(
-                600 - (((framenum-98)**4) /500000),
+                720 - (((framenum-98)**4) /500000),
                 1280, 720, 1280)
+        elif framenum>=98 and framenum<=135:
+            ptsstring = "[(0,0),(0,{}),({},{}),({},0)]".format(720 - (((framenum - 113) ** 2) / 70),
+                                                        1280, 720, 1280)
+            #ptsstring = "[(0,0),(0,{}),({},{}),({},0)]".format(720, 1280, 720, 1280)
         else:
-            #ptsstring = "[(0,0),(0,{}),({},{}),({},0)]".format(720 - (((framenum - 98) ** 2 * (framenum - 113) ** 2) / 500 / framenum+10),
-                                                        #1280, 720, 1280)
-            ptsstring = "[(0,0),(0,{}),({},{}),({},0)]".format(720, 1280, 720, 1280)
+            ptsstring = "[(0,0),(0,{}),({},{}),({},0)]".format(720 - (((framenum - 135) ** 2) / 7),
+                                                               1280, 720, 1280)
     else:
         ptsstring = "[(0,0),(0,{}),({},{}),({},0)]".format(720, 1280, 720, 1280)
     pts = np.array(eval(ptsstring), dtype="float32")
@@ -87,10 +94,10 @@ while(1):
     image2 = four_point_transform(gray, pts, False)
     #gray[0:100, 0:1280] = np.ones((100,1280))
     #gray[300:720, 0:1280] = np.ones((420, 1280))
-    cv2.imshow("",image2)
+    #cv2.imshow("",image2)
     #blur = cv2.GaussianBlur(gray, (5, 5), 0)
     circles = cv2.HoughCircles(image2, cv2.HOUGH_GRADIENT, 1.2, 100)
-    print("Frame: "+str(framenum))
+    #print("Frame: "+str(framenum))
     framenum+=1
     if circles is not None:
         perc+=1
@@ -99,7 +106,7 @@ while(1):
         maxy = 0
         maxr = 0
         for (x, y, r) in circles:
-            print(x, y, r)
+            #print(x, y, r)
             if r > maxr:
                 maxx = x
                 maxy = y
@@ -107,16 +114,34 @@ while(1):
         #cv2.circle(output, (maxx, maxy), maxr, (0, 165, 255), 4)
         cv2.circle(output2, (maxx, maxy), maxr, (random.randrange(254,255), random.randrange(254,255), random.randrange(254,255)), 4)
         cv2.rectangle(output2, (maxx - 5, maxy - 5), (maxx + 5, maxy + 5), (0, 0, 0), -1)
+        prev = True
+        prevx = maxx
+        prevy = maxy
+        prevr = maxr
+    else:
+        if prev == True and circles is None:
+            perc += 1
+            #print("copy",prevx, prevy, prevr)
+            cv2.circle(output2, (maxx-10, maxy), maxr,
+                       (random.randrange(254, 255), random.randrange(254, 255), random.randrange(254, 255)), 4)
+            cv2.rectangle(output2, (maxx - 5, maxy - 5), (maxx + 5, maxy + 5), (0, 0, 0), -1)
+            #cv2.imshow("w/circle", output2)
+            #print("it happened??")
 
+    #cv2.imshow("maybe", output2)
     output3 = four_point_transform(output2, pts, True)
+    #cv2.imshow("afterwards",output3)
     #cv2.imshow("circle", output3)
     rows, cols, channels = output3.shape
     if rows > 720:
         rows = 720
     if cols >1280:
         cols = 1280
-    if circles is not None:
+    if circles is not None or prev == True:
         output[0:rows, 0:cols] = output3[0:rows, 0:cols]
+        if prev == True and circles is None:
+            prev = False
+    #cv2.imshow("coutput", np.hstack([output[0:rows, 0:cols],output3[0:rows, 0:cols]]))
     #cv2.imshow("output?",output)
     cv2.imshow('frame',np.hstack([frame, output]))
 
@@ -131,4 +156,4 @@ while(1):
     #print(output.shape)
     #print(gray.shape)
     #cv2.imshow('frame',np.hstack([frame, output, gray]))
-print(str(round(perc/(framenum-38-90)*100))+"%")
+#print(str(round(perc/(framenum-(55+111))*100))+"%")
